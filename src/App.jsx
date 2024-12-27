@@ -3,7 +3,6 @@ import "./../style.css";
 
 const INITIAL_CHIPS = 1000;
 const INITIAL_DECK = createDeck();
-const MIN_BET = 50;
 
 function App() {
   const [gameStarted, setGameStarted] = useState(false);
@@ -36,9 +35,10 @@ function GameScreen({ initialDeck, initialChips }) {
   const [players, setPlayers] = useState(initializePlayers(4, initialChips));
   const [communityCards, setCommunityCards] = useState([]);
   const [pot, setPot] = useState(0);
-  const [currentBet, setCurrentBet] = useState(MIN_BET);
-  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
-  const [round, setRound] = useState("pre-flop");
+  const [holeCardsDealt, setHoleCardsDealt] = useState(false);
+  const [communityCardCount, setCommunityCardCount] = useState(0);
+  const [openEnabled, setOpenEnabled] = useState(false);
+  const [allCardsRevealed, setAllCardsRevealed] = useState(false);
 
   const dealHoleCards = () => {
     const newDeck = [...deck];
@@ -48,70 +48,29 @@ function GameScreen({ initialDeck, initialChips }) {
     }));
     setPlayers(updatedPlayers);
     setDeck(newDeck);
+    setHoleCardsDealt(true);
   };
 
   const dealCommunityCard = () => {
-    const newDeck = [...deck];
-    const newCard = newDeck.pop();
-    setCommunityCards([...communityCards, newCard]);
-    setDeck(newDeck);
-  };
-
-  const handleBet = (amount) => {
-    const updatedPlayers = players.map((player, index) => {
-      if (index === currentPlayerIndex) {
-        return { ...player, chips: player.chips - amount };
-      }
-      return player;
-    });
-    setPlayers(updatedPlayers);
-    setPot(pot + amount);
-    setCurrentBet(amount);
-    nextPlayer();
-  };
-
-  const handleFold = () => {
-    const updatedPlayers = players.map((player, index) => {
-      if (index === currentPlayerIndex) {
-        return { ...player, active: false };
-      }
-      return player;
-    });
-    setPlayers(updatedPlayers);
-    nextPlayer();
-  };
-
-  const handleCheck = () => {
-    nextPlayer();
-  };
-
-  const nextPlayer = () => {
-    const nextIndex = (currentPlayerIndex + 1) % players.length;
-    setCurrentPlayerIndex(nextIndex);
-  };
-
-  const advanceRound = () => {
-    switch (round) {
-      case "pre-flop":
-        setRound("flop");
-        dealCommunityCard();
-        dealCommunityCard();
-        dealCommunityCard();
-        break;
-      case "flop":
-        setRound("turn");
-        dealCommunityCard();
-        break;
-      case "turn":
-        setRound("river");
-        dealCommunityCard();
-        break;
-      case "river":
-        setRound("showdown");
-        break;
-      default:
-        break;
+    if (communityCardCount === 0) {
+      // First time: Deal 3 community cards
+      setCommunityCards([...communityCards, deck.pop(), deck.pop(), deck.pop()]);
+      setDeck(deck.slice(0, -3));
+      setCommunityCardCount(communityCardCount + 3);
+    } else if (communityCardCount < 5) {
+      // Deal one additional community card
+      setCommunityCards([...communityCards, deck.pop()]);
+      setDeck(deck.slice(0, -1));
+      setCommunityCardCount(communityCardCount + 1);
     }
+
+    if (communityCardCount + 1 >= 5) {
+      setOpenEnabled(true);
+    }
+  };
+
+  const revealAllCards = () => {
+    setAllCardsRevealed(true);
   };
 
   return (
@@ -133,20 +92,19 @@ function GameScreen({ initialDeck, initialChips }) {
               className={`player player-${index + 1}`}
               style={getPlayerPosition(index)}
             >
-              <Player player={player} isVertical={index === 1 || index === 2} isBack={index !== 3} />
+              <Player player={player} isVertical={index === 1 || index === 2} isBack={!allCardsRevealed && index !== 3} />
             </div>
           ))}
         </div>
       </div>
       <div className="controls">
-        {round !== "showdown" && (
-          <>
-            <button onClick={() => handleBet(currentBet)}>Bet {currentBet}</button>
-            <button onClick={handleCheck}>Check</button>
-            <button onClick={handleFold}>Fold</button>
-          </>
-        )}
-        {round !== "showdown" && <button onClick={advanceRound}>Next Round</button>}
+        {!holeCardsDealt ? (
+          <button onClick={dealHoleCards}>Deal Hole Cards</button>
+        ) : communityCardCount < 5 ? (
+          <button onClick={dealCommunityCard}>Deal Community Card</button>
+        ) : openEnabled ? (
+          <button onClick={revealAllCards}>Open</button>
+        ) : null}
       </div>
       <div className="pot-display">Pot: {pot}</div>
     </div>
