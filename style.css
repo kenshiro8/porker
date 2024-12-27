@@ -43,6 +43,14 @@ body {
   box-shadow: 0 0 30px black;
 }
 
+.game-screen {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: radial-gradient(circle, green, black);
+  overflow: hidden;
+}
+
 .chips-display {
   position: absolute;
   top: 10px;
@@ -56,14 +64,35 @@ body {
   box-shadow: 0 0 10px black;
 }
 
+.table {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.deck {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.community-cards {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+}
+
 .player {
   position: absolute;
-  text-align: center;
-  padding: 10px;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  border-radius: 10px;
-  box-shadow: 0 0 10px black;
+}
+
+.hand {
+  display: flex;
+  gap: 10px;
 }
 
 .card {
@@ -80,21 +109,10 @@ body {
   position: relative;
 }
 
-.card-suit {
-  font-size: 1.5rem;
-  color: red;
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-}
-
-.card-rank {
-  color: red;
-  font-size: 1.5rem;
-  font-weight: bold;
-  position: absolute;
-  top: 5px;
-  left: 5px;
+.card.horizontal {
+  width: 90px;
+  height: 60px;
+  flex-direction: row;
 }
 
 .card.back {
@@ -129,32 +147,66 @@ body {
   opacity: 0.6;
 }
 
-.deck {
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 80px;
-  height: 100px;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Cinzel', serif;
 }
 
-.deck-card {
+.controls button {
+  padding: 20px 40px;
+  font-size: 2rem;
+  background-color: #f7cb09;
+  border: 3px solid;
+  border-radius: 10px;
+  box-shadow: 0 0 10px black;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  font-family: 'Cinzel', serif;
+}
+
+.controls button:hover {
+  background-color: #c19e06;
+  box-shadow: 0 0 30px black;
+}
+
+.pot-display {
   position: absolute;
-  width: 60px;
-  height: 90px;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+  color: white;
 }
 
-.deck-card.back {
-  background-color: #004400;
-  border: 1px solid #000;
-  background-image: repeating-linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.1),
-    rgba(255, 255, 255, 0.1) 10px,
-    transparent 10px,
-    transparent 20px
-  );
-  background-size: 10px 10px;
+.card.rotated {
+  transform: rotate(90deg);
+}
+
+.card-suit {
+  font-size: 1.5rem;
+  color: red;
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
+
+.card-rank {
+  color: red;
+  font-size: 1.5rem;
+  font-weight: bold;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+}
+
+.vertical-player-card {
+  margin: 0;
 }
